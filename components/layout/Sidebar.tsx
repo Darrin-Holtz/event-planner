@@ -4,7 +4,7 @@ import { portalNavigation } from '@/lib/navigation'
 import { usePathname } from 'next/navigation';
 import Link from 'next/dist/client/link'
 import { useSidebar } from '../providers/sidebar-provider';
-import { X } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -22,7 +22,7 @@ export default function Sidebar() {
           <ul className="space-y-2">
             {portalNavigation.map((item) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active = pathname === item.href || (item.href !== '/portal' && pathname.startsWith(item.href));
 
               return (<li key={item.href}>
                 <Link
@@ -40,6 +40,15 @@ export default function Sidebar() {
             })}
           </ul>
         </nav>
+        <div className="p-4 border-t">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-gray-600 hover:bg-gray-100 transition"
+          >
+            <ExternalLink size={16} />
+            Visit Site
+          </Link>
+        </div>
       </aside>
       {open && (
         <>
@@ -65,7 +74,7 @@ export default function Sidebar() {
               <ul className="space-y-2">
                 {portalNavigation.map((item) => {
                   const Icon = item.icon;
-                  const active = pathname === item.href;
+                  const active = pathname === item.href || (item.href !== '/portal' && pathname.startsWith(item.href));
 
                   return (<li key={item.href}>
                     <Link
@@ -83,6 +92,16 @@ export default function Sidebar() {
                 })}
               </ul>
             </nav>
+            <div className="p-4 border-t">
+              <Link
+                href="/"
+                className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-gray-600 hover:bg-gray-100 transition"
+                onClick={() => setOpen(false)}
+              >
+                <ExternalLink size={16} />
+                Visit Site
+              </Link>
+            </div>
           </aside>
         </>      
       )}

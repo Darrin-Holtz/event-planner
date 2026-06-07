@@ -36,6 +36,12 @@ export default function Navbar() {
         {/* Desktop Actions */}
         <div className="hidden items-center gap-3 md:flex">
           <Link
+            href="/portal"
+            className="text-sm font-medium text-gray-900 transition hover:text-gray-400"
+          >
+            Portal
+          </Link>
+          <Link
             href="/login"
             className="text-sm font-medium text-gray-900 transition hover:text-gray-400"
           >
@@ -71,6 +77,12 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/portal"
+              className="mt-4 text-sm font-medium text-gray-900 hover:text-gray-400"
+            >
+              Portal
+            </Link>
             <Link
               href="/login"
               className="mt-4 text-sm font-medium text-gray-900 hover:text-gray-400"
