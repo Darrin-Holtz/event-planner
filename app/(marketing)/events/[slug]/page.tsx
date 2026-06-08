@@ -10,6 +10,8 @@ import TestimonialsSection from "@/components/events/TestimonialsSection";
 import ExpandableFAQ from "@/components/events/ExpandableFAQ";
 import EventDetailsCTA from "@/components/events/EventDetailsCTA";
 
+export const dynamic = "force-dynamic";
+
 interface EventData {
   id: string;
   title: string;
@@ -51,14 +53,18 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
 
   try {
     const { prisma } = await import("@/lib/prisma");
+    console.log("[v0] Attempting to fetch event with slug:", slug);
     const dbEvent = await prisma.event.findFirst({
       where: { slug, status: "PUBLISHED" },
       include: { church: true },
     });
+    console.log("[v0] Database query result:", dbEvent?.title);
     if (dbEvent) {
       event = dbEvent as EventData;
+      console.log("[v0] Using database event:", event.title);
     }
   } catch (error) {
+    console.log("[v0] Database error:", error);
     // Silently fall back to demo event if database is unavailable
   }
 
