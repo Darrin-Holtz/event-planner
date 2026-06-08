@@ -2,8 +2,22 @@ import { format } from "date-fns";
 import { CalendarDays, MapPin, Users, Search } from "lucide-react";
 import Link from "next/link";
 
+interface EventData {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
+  startDate: Date;
+  endDate: Date;
+  capacity: number | null;
+  price: number | null;
+  status: string;
+  church: { id: string; name: string; slug: string };
+}
+
 // Demo events for when database is not available
-const DEMO_EVENTS = [
+const DEMO_EVENTS: EventData[] = [
   {
     id: "1",
     title: "Spring Retreat 2024",
@@ -72,7 +86,7 @@ const DEMO_EVENTS = [
 ];
 
 export default async function PublicEventsPage() {
-  let events = DEMO_EVENTS;
+  let events: EventData[] = DEMO_EVENTS;
   
   try {
     const { prisma } = await import("@/lib/prisma");
@@ -82,7 +96,7 @@ export default async function PublicEventsPage() {
       orderBy: { startDate: "asc" },
     });
     if (dbEvents.length > 0) {
-      events = dbEvents;
+      events = dbEvents as EventData[];
     }
   } catch (error) {
     // Silently fall back to demo events if database is unavailable

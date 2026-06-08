@@ -6,9 +6,16 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 export default async function EventsPage() {
-  const events = await prisma.event.findMany({
-    orderBy: { startDate: "asc" },
-  });
+  const events: any[] = [];
+  
+  try {
+    const dbEvents = await prisma.event.findMany({
+      orderBy: { startDate: "asc" },
+    });
+    events.push(...dbEvents);
+  } catch (error) {
+    console.error("[v0] Failed to fetch events from database:", error);
+  }
 
   return (
     <div className="space-y-6">

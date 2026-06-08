@@ -10,6 +10,20 @@ import TestimonialsSection from "@/components/events/TestimonialsSection";
 import ExpandableFAQ from "@/components/events/ExpandableFAQ";
 import EventDetailsCTA from "@/components/events/EventDetailsCTA";
 
+interface EventData {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
+  startDate: Date;
+  endDate: Date;
+  capacity: number | null;
+  price: number | null;
+  status: string;
+  church: { id: string; name: string; slug: string };
+}
+
 interface PublicEventPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -18,7 +32,7 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
   const { slug } = await params;
 
   // Demo event data for when database is unavailable
-  const DEMO_EVENT = {
+  const DEMO_EVENT: EventData = {
     id: "1",
     title: "Spring Retreat 2024",
     slug: "spring-retreat-2024",
@@ -33,7 +47,7 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
     church: { id: "1", name: "Grace Church", slug: "grace-church" },
   };
 
-  let event = DEMO_EVENT;
+  let event: EventData = DEMO_EVENT;
 
   try {
     const { prisma } = await import("@/lib/prisma");
@@ -42,7 +56,7 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
       include: { church: true },
     });
     if (dbEvent) {
-      event = dbEvent;
+      event = dbEvent as EventData;
     }
   } catch (error) {
     // Silently fall back to demo event if database is unavailable
