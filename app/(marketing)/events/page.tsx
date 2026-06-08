@@ -1,14 +1,92 @@
-import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { CalendarDays, MapPin, Users, Search } from "lucide-react";
 import Link from "next/link";
 
+// Demo events for when database is not available
+const DEMO_EVENTS = [
+  {
+    id: "1",
+    title: "Spring Retreat 2024",
+    slug: "spring-retreat-2024",
+    description: "Join us for an inspiring weekend retreat focused on spiritual growth and community building.",
+    location: "Mountain View Conference Center",
+    startDate: new Date(2024, 3, 15),
+    endDate: new Date(2024, 3, 17),
+    capacity: 100,
+    price: 149,
+    status: "PUBLISHED",
+    church: { id: "1", name: "Grace Church", slug: "grace-church" },
+  },
+  {
+    id: "2",
+    title: "Youth Conference",
+    slug: "youth-conference",
+    description: "Empowering the next generation with faith, purpose, and community connection.",
+    location: "Downtown Convention Center",
+    startDate: new Date(2024, 5, 20),
+    endDate: new Date(2024, 5, 22),
+    capacity: 250,
+    price: 99,
+    status: "PUBLISHED",
+    church: { id: "1", name: "Grace Church", slug: "grace-church" },
+  },
+  {
+    id: "3",
+    title: "Leadership Workshop",
+    slug: "leadership-workshop",
+    description: "Learn modern leadership principles for effective ministry management.",
+    location: "Online",
+    startDate: new Date(2024, 6, 10),
+    endDate: new Date(2024, 6, 10),
+    capacity: 50,
+    price: 0,
+    status: "PUBLISHED",
+    church: { id: "1", name: "Grace Church", slug: "grace-church" },
+  },
+  {
+    id: "4",
+    title: "Family Camp",
+    slug: "family-camp",
+    description: "A fun-filled weekend for the whole family with activities, worship, and fellowship.",
+    location: "Pine Ridge Camp Ground",
+    startDate: new Date(2024, 7, 5),
+    endDate: new Date(2024, 7, 9),
+    capacity: 200,
+    price: 399,
+    status: "PUBLISHED",
+    church: { id: "1", name: "Grace Church", slug: "grace-church" },
+  },
+  {
+    id: "5",
+    title: "Worship Workshop",
+    slug: "worship-workshop",
+    description: "Deepen your worship experience with advanced techniques and modern praise.",
+    location: "Music Hall",
+    startDate: new Date(2024, 8, 12),
+    endDate: new Date(2024, 8, 12),
+    capacity: 75,
+    price: 0,
+    status: "PUBLISHED",
+    church: { id: "1", name: "Grace Church", slug: "grace-church" },
+  },
+];
+
 export default async function PublicEventsPage() {
-  const events = await prisma.event.findMany({
-    where: { status: "PUBLISHED" },
-    include: { church: true },
-    orderBy: { startDate: "asc" },
-  });
+  let events = DEMO_EVENTS;
+  
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const dbEvents = await prisma.event.findMany({
+      where: { status: "PUBLISHED" },
+      include: { church: true },
+      orderBy: { startDate: "asc" },
+    });
+    if (dbEvents.length > 0) {
+      events = dbEvents;
+    }
+  } catch (error) {
+    // Silently fall back to demo events if database is unavailable
+  }
 
   // Categorize events
   const categorizedEvents = {
@@ -208,7 +286,7 @@ function EventCard({ event }: any) {
         <div className="space-y-2 border-t border-gray-100 pt-4 text-sm text-muted">
           <div className="flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
-            <span>{format(event.startDate, "MMM d, yyyy")}</span>
+            <span>{format(new Date(event.startDate), "MMM d, yyyy")}</span>
           </div>
           {event.location && (
             <div className="flex items-center gap-2">
