@@ -50,23 +50,27 @@ export default function ExpandableFAQ() {
       <h2 className="text-3xl font-bold text-foreground mb-8">Frequently Asked Questions</h2>
       <div className="space-y-3">
         {faqs.map((faq) => (
-          <button
+          <div
             key={faq.id}
-            onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
-            className="w-full text-left p-6 rounded-xl border border-gray-200 hover:border-primary/30 transition-all hover:shadow-md"
+            className="rounded-xl border border-gray-200 hover:border-primary/30 transition-all hover:shadow-md overflow-hidden bg-white"
           >
-            <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
+              className="w-full text-left p-6 flex items-center justify-between gap-4 cursor-pointer"
+            >
               <h3 className="font-semibold text-foreground text-lg">{faq.question}</h3>
               <ChevronDown
                 className={`h-5 w-5 text-primary flex-shrink-0 transition-transform duration-300 ${
                   expandedId === faq.id ? "rotate-180" : ""
                 }`}
               />
-            </div>
+            </button>
             {expandedId === faq.id && (
-              <p className="mt-4 text-muted leading-relaxed">{faq.answer}</p>
+              <div className="px-6 pb-6 border-t border-gray-100">
+                <p className="text-muted leading-relaxed">{faq.answer}</p>
+              </div>
             )}
-          </button>
+          </div>
         ))}
       </div>
     </div>
