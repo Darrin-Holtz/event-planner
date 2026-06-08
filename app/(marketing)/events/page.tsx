@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import { CalendarDays, MapPin, Users, Search } from "lucide-react";
 import Link from "next/link";
 
 export default async function PublicEventsPage() {
@@ -10,92 +10,227 @@ export default async function PublicEventsPage() {
     orderBy: { startDate: "asc" },
   });
 
+  // Categorize events
+  const categorizedEvents = {
+    retreats: events.filter(e => e.title.toLowerCase().includes('retreat')),
+    conferences: events.filter(e => e.title.toLowerCase().includes('conference')),
+    camps: events.filter(e => e.title.toLowerCase().includes('camp')),
+    workshops: events.filter(e => e.title.toLowerCase().includes('workshop')),
+    other: events.filter(e => 
+      !e.title.toLowerCase().includes('retreat') &&
+      !e.title.toLowerCase().includes('conference') &&
+      !e.title.toLowerCase().includes('camp') &&
+      !e.title.toLowerCase().includes('workshop')
+    ),
+  };
+
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-20 text-white">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-slate-400">
-            Upcoming Events
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Gather. Worship. Grow.
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-300">
-            Browse events from churches and ministries in your community.
-          </p>
+      <section className="px-6 py-20 md:py-32 bg-white">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4">
+              Discover Ministry Events
+            </h1>
+            <p className="text-xl text-muted max-w-2xl mx-auto">
+              Browse and register for upcoming retreats, conferences, camps, and gatherings in your community
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-3 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition">
+            <Search size={20} className="text-muted flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search by event name or location..."
+              className="flex-1 bg-transparent outline-none text-foreground placeholder-muted"
+            />
+          </div>
         </div>
       </section>
 
-      {/* Events grid */}
-      <section className="mx-auto max-w-7xl px-6 py-16">
-        {events.length === 0 ? (
-          <div className="py-24 text-center text-gray-400">
-            <CalendarDays className="mx-auto mb-4 h-12 w-12 opacity-30" />
-            <p className="text-lg font-medium">No upcoming events right now.</p>
-            <p className="mt-1 text-sm">Check back soon.</p>
-          </div>
-        ) : (
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.slug}`}
-                className="group flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
-              >
-                {/* Color accent bar */}
-                <div className="h-2 w-full rounded-t-2xl bg-gradient-to-r from-slate-700 to-slate-500" />
-
-                <div className="flex flex-1 flex-col p-6">
-                  {/* Church */}
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    {event.church.name}
-                  </p>
-
-                  {/* Title */}
-                  <h2 className="text-xl font-bold text-gray-900 group-hover:text-slate-700 transition-colors">
-                    {event.title}
-                  </h2>
-
-                  {/* Description */}
-                  {event.description && (
-                    <p className="mt-2 flex-1 text-sm text-gray-500 line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
-
-                  {/* Meta */}
-                  <div className="mt-5 space-y-2 border-t border-gray-100 pt-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 shrink-0 text-slate-400" />
-                      <span>{format(event.startDate, "EEEE, MMMM d, yyyy")}</span>
-                    </div>
-                    {event.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-                        <span className="truncate">{event.location}</span>
-                      </div>
-                    )}
-                    {event.capacity && (
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 shrink-0 text-slate-400" />
-                        <span>{event.capacity} spots</span>
-                      </div>
-                    )}
+      {/* Featured Event */}
+      {events.length > 0 && (
+        <section className="px-6 py-12 bg-gradient-to-b from-gray-50 to-white">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-2xl font-bold text-foreground mb-8">Featured Event</h2>
+            <Link
+              href={`/events/${events[0].slug}`}
+              className="group flex flex-col md:flex-row gap-6 rounded-xl border border-gray-200 bg-white p-8 hover:shadow-lg transition-all"
+            >
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">
+                  {events[0].church.name}
+                </p>
+                <h3 className="text-3xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
+                  {events[0].title}
+                </h3>
+                <p className="text-lg text-muted mb-6 line-clamp-3">
+                  {events[0].description}
+                </p>
+                <div className="flex flex-wrap gap-6 text-sm text-muted">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays size={18} className="text-primary flex-shrink-0" />
+                    <span>{format(events[0].startDate, "EEEE, MMMM d")}</span>
                   </div>
+                  {events[0].location && (
+                    <div className="flex items-center gap-2">
+                      <MapPin size={18} className="text-primary flex-shrink-0" />
+                      <span>{events[0].location}</span>
+                    </div>
+                  )}
+                  {events[0].capacity && (
+                    <div className="flex items-center gap-2">
+                      <Users size={18} className="text-primary flex-shrink-0" />
+                      <span>{events[0].capacity} spots available</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-center md:min-w-48">
+                <div className="inline-block px-6 py-3 rounded-lg bg-primary text-white font-semibold group-hover:bg-primary/90 transition-all">
+                  View Details →
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
-                  {/* CTA */}
-                  <div className="mt-5">
-                    <span className="inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition group-hover:bg-slate-700">
-                      View Details →
-                    </span>
+      {/* Events by Category */}
+      <section className="px-6 py-20 md:py-32 bg-white">
+        <div className="mx-auto max-w-6xl">
+          {events.length === 0 ? (
+            <div className="py-24 text-center">
+              <CalendarDays className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p className="text-lg font-medium text-foreground">No upcoming events right now.</p>
+              <p className="mt-1 text-muted">Check back soon for new opportunities to grow together.</p>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {/* Retreats */}
+              {categorizedEvents.retreats.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-8">Retreats</h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categorizedEvents.retreats.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              )}
+
+              {/* Conferences */}
+              {categorizedEvents.conferences.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-8">Conferences</h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categorizedEvents.conferences.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Camps */}
+              {categorizedEvents.camps.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-8">Camps</h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categorizedEvents.camps.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Workshops */}
+              {categorizedEvents.workshops.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-8">Workshops</h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categorizedEvents.workshops.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Other Events */}
+              {categorizedEvents.other.length > 0 && (
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground mb-8">Upcoming Events</h2>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categorizedEvents.other.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </section>
     </>
+  );
+}
+
+// Event Card Component
+function EventCard({ event }: any) {
+  return (
+    <Link
+      href={`/events/${event.slug}`}
+      className="group flex flex-col rounded-xl border border-gray-200 bg-white hover:shadow-lg hover:border-primary/30 transition-all overflow-hidden"
+    >
+      {/* Accent Bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-primary to-secondary group-hover:shadow-lg transition-all" />
+
+      <div className="flex flex-1 flex-col p-6">
+        {/* Church Badge */}
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-primary">
+          {event.church.name}
+        </p>
+
+        {/* Title */}
+        <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2">
+          {event.title}
+        </h3>
+
+        {/* Description */}
+        {event.description && (
+          <p className="flex-1 text-sm text-muted line-clamp-2 mb-4">
+            {event.description}
+          </p>
+        )}
+
+        {/* Meta Information */}
+        <div className="space-y-2 border-t border-gray-100 pt-4 text-sm text-muted">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
+            <span>{format(event.startDate, "MMM d, yyyy")}</span>
+          </div>
+          {event.location && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="truncate">{event.location}</span>
+            </div>
+          )}
+          {event.capacity && (
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary flex-shrink-0" />
+              <span>{event.capacity} spots</span>
+            </div>
+          )}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-4">
+          <span className="inline-block px-4 py-2 rounded-lg bg-primary/10 text-primary font-semibold text-sm group-hover:bg-primary group-hover:text-white transition-all">
+            Register Now →
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

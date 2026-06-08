@@ -1,7 +1,7 @@
 "use client";
 
 interface DeleteEventButtonProps {
-    action: () => Promise<never>;
+    action: () => Promise<void>;
     variant?: "button" | "link";
 }
 
