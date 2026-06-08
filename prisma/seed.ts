@@ -24,7 +24,6 @@ async function main() {
       data: {
         name: "Grace Church",
         slug: "grace-church",
-        description: "A vibrant community of faith dedicated to spiritual growth and ministry.",
       },
     });
   }
@@ -46,7 +45,7 @@ async function main() {
       endDate: new Date(2024, 3, 17),
       capacity: 100,
       price: 149,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as any,
     },
     {
       title: "Youth Conference",
@@ -57,7 +56,7 @@ async function main() {
       endDate: new Date(2024, 5, 22),
       capacity: 250,
       price: 99,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as any,
     },
     {
       title: "Leadership Workshop",
@@ -68,7 +67,7 @@ async function main() {
       endDate: new Date(2024, 6, 10),
       capacity: 50,
       price: 0,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as any,
     },
     {
       title: "Family Camp",
@@ -79,7 +78,7 @@ async function main() {
       endDate: new Date(2024, 7, 9),
       capacity: 200,
       price: 399,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as any,
     },
     {
       title: "Worship Workshop",
@@ -90,7 +89,7 @@ async function main() {
       endDate: new Date(2024, 8, 12),
       capacity: 75,
       price: 0,
-      status: "PUBLISHED",
+      status: "PUBLISHED" as any,
     },
   ];
 
