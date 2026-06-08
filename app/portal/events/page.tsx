@@ -8,6 +8,13 @@ import Link from "next/link";
 export default async function EventsPage() {
   const events = await prisma.event.findMany({
     orderBy: { startDate: "asc" },
+    include: {
+      _count: {
+        select: {
+          registrations: true,
+        },
+      },
+    },
   });
 
   return (
@@ -31,6 +38,7 @@ export default async function EventsPage() {
               <th className="px-4 py-3">Location</th>
               <th className="px-4 py-3">Start Date</th>
               <th className="px-4 py-3">Capacity</th>
+              <th className="px-4 py-3">Registrations</th>
               <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
@@ -58,6 +66,11 @@ export default async function EventsPage() {
                 </td>
                 <td className="px-4 py-3 text-gray-500">
                   {event.capacity ?? "Unlimited"}
+                </td>
+                <td className="px-4 py-3 text-gray-500">
+                  <Link href={`/portal/events/${event.id}/registrations`} className="hover:underline">
+                    {event._count.registrations} Registrations
+                  </Link>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">

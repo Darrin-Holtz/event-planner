@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { CalendarDays, Clock, MapPin, Users, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import EventRegistrationForm from "@/components/forms/EventRegistrationForm";
 
 interface PublicEventPageProps {
   params: Promise<{ slug: string }>;
@@ -13,10 +14,16 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
 
   const event = await prisma.event.findFirst({
     where: { slug, status: "PUBLISHED" },
-    include: { church: true },
+    include: {
+      church: true,
+      _count: { select: { registrations: true } },
+    },
   });
 
   if (!event) notFound();
+
+  const registrationCount = event._count.registrations;
+  const spotsRemaining = event.capacity ? event.capacity - registrationCount : null;
 
   const sameDay =
     format(event.startDate, "yyyy-MM-dd") === format(event.endDate, "yyyy-MM-dd");
@@ -38,11 +45,6 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
             {event.title}
           </h1>
-          {event.description && (
-            <p className="mt-4 max-w-2xl text-lg text-slate-300">
-              {event.description}
-            </p>
-          )}
         </div>
       </section>
 
@@ -50,8 +52,29 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
       <section className="mx-auto max-w-4xl px-6 py-16">
         <div className="grid gap-10 lg:grid-cols-3">
 
+          {/* Main content */}
+          <div className="lg:col-span-2 space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-white">About This Event</h2>
+              {event.description ? (
+                <p className="mt-3 leading-relaxed text-white whitespace-pre-wrap">
+                  {event.description}
+                </p>
+              ) : (
+                <p className="mt-3 text-white/60 italic">No description provided.</p>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
+                Hosted by
+              </h3>
+              <p className="mt-2 text-xl font-bold text-gray-900">{event.church.name}</p>
+            </div>
+          </div>
+
           {/* Details sidebar */}
-          <div className="order-first lg:order-last">
+          <div className="lg:order-last">
             <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-5">
               <h2 className="text-base font-semibold text-gray-900">Event Details</h2>
 
@@ -86,16 +109,23 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
                   </div>
                 )}
 
-                {event.capacity && (
-                  <div className="flex gap-3">
-                    <Users className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {event.capacity} spots available
+                <div className="flex gap-3">
+                  <Users className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {event.capacity
+                        ? `${registrationCount} / ${event.capacity} Registered`
+                        : `${registrationCount} Registered`}
+                    </p>
+                    {spotsRemaining !== null && (
+                      <p className="text-xs text-gray-500">
+                        {spotsRemaining > 0
+                          ? `${spotsRemaining} Spots Remaining`
+                          : "Event is full"}
                       </p>
-                    </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
 
               {event.price ? (
@@ -112,30 +142,10 @@ export default async function PublicEventPage({ params }: PublicEventPageProps) 
                 </div>
               )}
 
-              <button className="w-full rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition hover:bg-slate-700">
-                Register Now
-              </button>
-            </div>
-          </div>
-
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">About This Event</h2>
-              {event.description ? (
-                <p className="mt-3 leading-relaxed text-gray-600 whitespace-pre-wrap">
-                  {event.description}
-                </p>
-              ) : (
-                <p className="mt-3 text-gray-400 italic">No description provided.</p>
-              )}
-            </div>
-
-            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">
-                Hosted by
-              </h3>
-              <p className="mt-2 text-xl font-bold text-gray-900">{event.church.name}</p>
+              <div className="border-t border-gray-100 pt-5">
+                <p className="mb-3 text-sm font-semibold text-gray-900">Register</p>
+                <EventRegistrationForm eventId={event.id} />
+              </div>
             </div>
           </div>
         </div>

@@ -60,4 +60,16 @@ model Event {
   status      EventStatus @default(DRAFT)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  registrations Registration[]
+}
+
+model Registration {
+  id         String @id @default(cuid())
+  eventId    String
+  event      Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  firstName  String
+  lastName   String
+  email      String
+  phone      String?
+  createdAt  DateTime @default(now())
 }

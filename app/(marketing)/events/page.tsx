@@ -6,7 +6,10 @@ import Link from "next/link";
 export default async function PublicEventsPage() {
   const events = await prisma.event.findMany({
     where: { status: "PUBLISHED" },
-    include: { church: true },
+    include: {
+      church: true,
+      _count: { select: { registrations: true } },
+    },
     orderBy: { startDate: "asc" },
   });
 
@@ -76,12 +79,13 @@ export default async function PublicEventsPage() {
                         <span className="truncate">{event.location}</span>
                       </div>
                     )}
-                    {event.capacity && (
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 shrink-0 text-slate-400" />
-                        <span>{event.capacity} spots</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 shrink-0 text-slate-400" />
+                      <span>
+                        {event._count.registrations} registered
+                        {event.capacity ? ` / ${event.capacity} spots` : ""}
+                      </span>
+                    </div>
                   </div>
 
                   {/* CTA */}
