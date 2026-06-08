@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { EventStatus } from "@/lib/generated/prisma/enums";
 import { redirect } from "next/navigation";
 
 export async function createEvent(formData: FormData) {
@@ -32,7 +31,7 @@ export async function createEvent(formData: FormData) {
     ? Number(formData.get("capacity"))
     : null;
 
-  const status = (formData.get("status") as EventStatus) || EventStatus.DRAFT;
+  const status = (formData.get("status") as string) || "DRAFT";
 
   await prisma.event.create({
     data: {
@@ -44,7 +43,7 @@ export async function createEvent(formData: FormData) {
       startDate,
       endDate,
       capacity,
-      status,
+      status: status as any,
     },
   });
 
@@ -62,11 +61,11 @@ export async function updateEvent(id: string, formData: FormData) {
     ? Number(formData.get("capacity"))
     : null;
 
-  const status = (formData.get("status") as EventStatus) || EventStatus.DRAFT;
+  const status = (formData.get("status") as string) || "DRAFT";
 
   await prisma.event.update({
     where: { id },
-    data: { title, slug, description, location, startDate, endDate, capacity, status },
+    data: { title, slug, description, location, startDate, endDate, capacity, status: status as any },
   });
 
   redirect(`/portal/events/${id}`);
